@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To DO List</title>
+    <style>
+      #task{
+        /* display: inline; */
+        margin-top: 10px;
+        margin-bottom: 10px;
+        /* gap: 5px; */
+        /* line-height: 5px; */
+        width: 500px;
+      }
+      #container{
+        display: flex;
+        gap: 20px;
+      }
+       .task-item{
+        display: flex;
+        flex-direction:column;
+        gap: 50px;
+        justify-content: space-around;
+        align-items: center;
+
+       }
+       .task-item button, .task-item span{
+        margin: 2px;
+       } 
+
+
+       
+      </style>
+</head>
+<body>
+<div id="task_div">
+    <h1>To-Do-List</h1>
+    <div></div>
+    <label for="task"></label>
+    <input type="text" id="task" placeholder="Enter your task here!!!">
+    <button id="add">Add Task</button>
+</div>
+    <div id="container" class ="container">
+      <!-- Task container where tasks will be displayed -->
+     </div>
+</body>
+</html>
+
+<script>
+    const getData = async () => {
+      let response = await fetch("http://localhost:3000/tasks");
+      let data = await response.json();
+      console.log(data);
+      appendToDOM(data);
+    }
+
+    const appendToDOM = (data) => {
+      let div = document.getElementById("container");
+      data.forEach(item => {
+        let taskDiv = document.createElement("div");
+        taskDiv.setAttribute("data-id", item.id); // Assuming each item has an 'id' property
+        taskDiv.classList.add("task-item");
+
+        let taskName = document.createElement("span");
+        taskName.innerHTML = item.name; // Assuming each item has a 'name' property
+
+        let completeTask = document.createElement("button");
+        completeTask.textContent = "Not Completed";
+        completeTask.classList.add("complete_div");
+        completeTask.onclick = () => {
+          if (completeTask.innerHTML == "Not Completed") {
+            completeTask.innerHTML = "Completed";
+          } else {
+            completeTask.innerHTML = "Not Completed";
+          }
+        };
+
+        let deleteTask = document.createElement("button");
+        deleteTask.textContent = "DeleteTask";
+        deleteTask.classList.add("delete_div");
+        deleteTask.onclick = async () => {
+          let response1 = await fetch(`http://localhost:3000/tasks/${item.id}`, {
+            method: 'DELETE'
+          });
+          if (response1.ok) {
+            taskDiv.remove();
+          }
+        };
+
+        taskDiv.append(taskName, completeTask, deleteTask);
+        div.append(taskDiv);
+      });
+    }
+
+    const postData = async () => {
+      let newData = document.getElementById("task").value;
+      let response1 = await fetch("http://localhost:3000/tasks", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: newData })
+      });
+      let data1 = await response1.json();
+      appendToDOM([data1]);
+    }
+
+    document.getElementById("add").addEventListener("click", postData); 
+    getData();
+</script>
+
+
+<!-- 
+<script>
+
+  
+  const addTask = async (event)=>{
+    event.preventDefault();
+    let task = document.getElementById("task").value;
+  
+    let response = await fetch("http://localhost:3000/tasks",{
+        method : 'POST',
+        headers:{
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: task })  // Send task as an object
+    });
+    let data = await response.json();
+    // console.log(data);
+    // container.append(data);
+    let container =document.getElementById("container");
+    
+      let div= document.createElement("div");
+      div.innerHTML= data.name;
+      container.append(div);
+    appendingtoDOM(data);
+
+  }
+
+  let input = document.getElementById("add").addEventListener("click",addTask);
+
+  const appendingtoDOM = async (data)=>{
+    let container =document.getElementById("container");
+    
+      let div= document.createElement("div");
+      div.innerHTML= data.name;
+      container.append(div);
+  
+     
+  }
+
+</script> -->
